@@ -2,6 +2,7 @@ package js
 
 import (
 	"fmt"
+
 	"github.com/chromedp/cdproto/cdp"
 )
 
@@ -295,13 +296,15 @@ const ObserverJS = `
 		let nodeListSrc = node.querySelectorAll("[src]");
 		for (let each of nodeListSrc) {
 			if (each.src) {
-				window.addLink(each.src, "DOM");
+				
 				let attrValue = each.getAttribute("src");
 				if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
 					try {
 						eval(attrValue.substring(11));
 					}
 					catch {}
+				}else{
+					window.addLink(each.src, "DOM");
 				}
 			}
 		}
@@ -310,13 +313,15 @@ const ObserverJS = `
 		nodeListHref = window.randArr(nodeListHref);
 		for (let each of nodeListHref) {
 			if (each.href) {
-				window.addLink(each.href, "DOM");
+				
 				let attrValue = each.getAttribute("href");
 				if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
 					try {
 						eval(attrValue.substring(11));
 					}
 					catch {}
+				}else{
+					window.addLink(each.href, "DOM");
 				}
 			}
 		}

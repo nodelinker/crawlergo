@@ -76,7 +76,7 @@ observer = observeDOM(listElm, async function (m) {
 	for (let node of nodeListHref) {
 		let attrValue = node.getAttribute("href");
 		if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-			await sleep(5000);
+			await sleep(1000);
 			try {
 				eval(attrValue.substring(11));
 			}
@@ -87,7 +87,7 @@ observer = observeDOM(listElm, async function (m) {
 	for (let node of nodeListSrc) {
 		let attrValue = node.getAttribute("src");
 		if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-			await sleep(5000);
+			await sleep(1000);
 			try {
 				eval(attrValue.substring(11));
 			}

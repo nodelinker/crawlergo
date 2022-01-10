@@ -19,7 +19,7 @@
 })();
 
 (function init_observer_sec_auto_b() {
-	window.dom_listener_func_sec_auto = async function (e) {
+	window.dom_listener_func_sec_auto = function (e) {
 		let node = e.target;
 		let nodeListSrc = node.querySelectorAll("[src]");
 		for (let each of nodeListSrc) {
@@ -28,7 +28,6 @@
 				let attrValue = each.getAttribute("src");
 				if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
 					try {
-                        await window.sleep(1000);
 						eval(attrValue.substring(11));
 					}
 					catch {}
@@ -47,7 +46,6 @@
 				let attrValue = each.getAttribute("href");
 				if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
 					try {
-                        await window.sleep(1000);
 						eval(attrValue.substring(11));
 					}
 					catch {}
@@ -74,7 +72,7 @@
 		}
 		nodeList = window.randArr(nodeList);
 		for (let node of nodeList) {
-			await window.sleep(1000);
+			await window.sleep(1110);
 			let evt = document.createEvent('CustomEvent');
 			evt.initCustomEvent(event, false, true, null);
 			try {

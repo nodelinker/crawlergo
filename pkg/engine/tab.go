@@ -8,6 +8,11 @@ import (
 	model2 "crawlergo/pkg/model"
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/dom"
 	"github.com/chromedp/cdproto/fetch"
@@ -16,10 +21,6 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/gogf/gf/encoding/gcharset"
-	"regexp"
-	"strings"
-	"sync"
-	"time"
 )
 
 type Tab struct {
@@ -253,18 +254,26 @@ func (tab *Tab) Start() {
 		tab.EncodeAllURLWithCharset()
 	}
 
-	//fmt.Println(tab.NavigateReq.URL.String(), len(tab.ResultList))
-	//for _, v := range tab.ResultList {
-	//	v.SimplePrint()
-	//}
-	// fmt.Println("Finished " + tab.NavigateReq.Method + " " + tab.NavigateReq.URL.String())
+	// 打印结果
+	fmt.Println("================>", tab.NavigateReq.URL.String(), len(tab.ResultList))
+	for _, v := range tab.ResultList {
+		v.SimplePrint()
+	}
+	fmt.Println("Finished " + tab.NavigateReq.Method + " " + tab.NavigateReq.URL.String())
 }
 
 func RunWithTimeOut(ctx *context.Context, timeout time.Duration, tasks chromedp.Tasks) chromedp.ActionFunc {
 	return func(ctx context.Context) error {
-		timeoutContext, _ := context.WithTimeout(ctx, timeout)
-		//defer cancel()
-		return tasks.Do(timeoutContext)
+
+		if timeoutContext, err := context.WithTimeout(ctx, timeout); err == nil {
+			return tasks.Do(timeoutContext)
+		} else {
+			return nil
+		}
+
+		// timeoutContext, _ := context.WithTimeout(ctx, timeout)
+		// //defer cancel()
+		// return tasks.Do(timeoutContext)
 	}
 }
 
@@ -404,7 +413,7 @@ func (tab *Tab) DetectCharset() {
 	var ok bool
 	var getCharsetRegex = regexp.MustCompile("charset=(.+)$")
 	err := chromedp.AttributeValue(`meta[http-equiv=Content-Type]`, "content", &content, &ok, chromedp.ByQuery).Do(tCtx)
-	if err != nil || ok != true {
+	if err != nil || !ok {
 		return
 	}
 	if strings.Contains(content, "charset=") {

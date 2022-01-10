@@ -7,9 +7,10 @@ import (
 	"crawlergo/pkg/logger"
 	"crawlergo/pkg/tools"
 	"fmt"
+	"time"
+
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
-	"time"
 )
 
 /**
@@ -26,13 +27,7 @@ err := EvaluateAsDevTools(snippet(submitJS, cashX(true), sel, nodes[0]), &res).D
 func (tab *Tab) AfterLoadedRun() {
 	defer tab.WG.Done()
 	logger.Logger.Debug("afterLoadedRun start")
-	tab.formSubmitWG.Add(2)
 	tab.loadedWG.Add(3)
-	tab.removeLis.Add(1)
-
-	go tab.formSubmit()
-	tab.formSubmitWG.Wait()
-	logger.Logger.Debug("formSubmit end")
 
 	if tab.config.EventTriggerMode == config.EventTriggerAsync {
 		go tab.triggerJavascriptProtocol()
@@ -47,9 +42,18 @@ func (tab *Tab) AfterLoadedRun() {
 		tab.triggerJavascriptProtocol()
 	}
 
+	tab.formSubmitWG.Add(2)
+	// 经过测试，如果form submit函数在trigger js之前执行会出现各种奇怪的现象，例如部分事件无法触发，页面不加载等问题
+	// 移到trigger js之后以后再执行
+	go tab.formSubmit()
+	tab.formSubmitWG.Wait()
+
+	logger.Logger.Debug("formSubmit end")
+
 	// 事件触发之后 需要等待一点时间让浏览器成功发出ajax请求 更新DOM
 	time.Sleep(tab.config.BeforeExitDelay)
 
+	tab.removeLis.Add(1)
 	go tab.RemoveDOMListener()
 	tab.removeLis.Wait()
 	logger.Logger.Debug("afterLoadedRun end")
@@ -66,7 +70,11 @@ func (tab *Tab) formSubmit() {
 	tab.setFormToFrame()
 
 	// 接下来尝试三种方式提交表单
+
+	// xpath 查找 form submit button
 	go tab.clickSubmit()
+
+	// 暴力点击，所有button都点一遍
 	go tab.clickAllButton()
 }
 

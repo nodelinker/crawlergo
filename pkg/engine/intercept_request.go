@@ -9,14 +9,14 @@ import (
 	"crawlergo/pkg/tools"
 	"crawlergo/pkg/tools/requests"
 	"encoding/base64"
-	"github.com/chromedp/cdproto/fetch"
-	"github.com/chromedp/cdproto/network"
-	"io"
 	"net/textproto"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/chromedp/cdproto/fetch"
+	"github.com/chromedp/cdproto/network"
 )
 
 /**
@@ -248,9 +248,9 @@ func (tab *Tab) GetStatusCode(headerText string) int {
 	tp := textproto.NewReader(rspBuf)
 	line, err := tp.ReadLine()
 	if err != nil {
-		if err == io.EOF {
-			err = io.ErrUnexpectedEOF
-		}
+		// if err == io.EOF {
+		// 	err = io.ErrUnexpectedEOF
+		// }
 		return 0
 	}
 	parts := strings.Split(line, " ")

@@ -66,53 +66,24 @@ observer = observeDOM(rootElement, async function (m) {
     (record) =>
       record.removedNodes.length & removedNodes.push(...record.removedNodes)
   );
-  // console.clear();
-  // console.log("Added:", addedNodes, "Removed:", removedNodes);
-
-  if (addedNodes.length > 0) {
-    window.listenerFinish = 1;
-  }
 
   for (var i = 0; i < addedNodes.length; i++) {
     try {
       var _ = addedNodes[i];
 
-      console.log(_);
-
       let nodeListHref = _.querySelectorAll("[href]");
       for (let node1 of nodeListHref) {
-        let attrValue = node1.getAttribute("href");
-        if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-          // await sleep(1000);
-          eval(attrValue.substring(11));
-        }
-        for (var i = 0; i < waitCount; i++) {
-          if (window.globalLock == 1) {
-            await sleep(sleepTime);
-          }
-        }
+        window.result.push(node1);
       }
+
       let nodeListSrc = _.querySelectorAll("[src]");
       for (let node2 of nodeListSrc) {
-        let attrValue = node2.getAttribute("src");
-        if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-          // await sleep(1000);
-          eval(attrValue.substring(11));
-        }
-
-        for (var i = 0; i < waitCount; i++) {
-          if (window.globalLock == 1) {
-            await sleep(sleepTime);
-          }
-        }
+        window.result.push(node2);
       }
     } catch (error) {
       continue;
     }
   }
-
-
-  window.listenerFinish = 0;
 });
 
 var origOpen = XMLHttpRequest.prototype.open;
@@ -138,46 +109,6 @@ XMLHttpRequest.prototype.open = function () {
   origOpen.apply(this, arguments);
 };
 
-let origSend = XMLHttpRequest.prototype.send;
-XMLHttpRequest.prototype.send = function () {
-  console.log("request send!");
-
-  this.addEventListener(
-    "readystatechange",
-    function () {
-      // if (this.responseURL.includes(urlmatch) && this.readyState === 4) {
-      //    callback(this);
-      // }
-      console.log(arguments);
-    },
-    false
-  );
-  origSend.apply(this, arguments);
-};
-
-
-async function XXXInlineTrigger(){
-  let nodeListHref = document.querySelectorAll("[href]");
-  for (let node of nodeListHref) {
-    let attrValue = node.getAttribute("href");
-    if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-      try {
-        eval(attrValue.substring(11));
-
-        for (var i = 0; i < waitCount; i++) {
-          if (window.globalLock == 1) {
-            console.log("aaaaaaaaaaaaaaaaaaaaaaaa", i);
-            await sleep(sleepTime);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
-}
-
-
 (async function click_all_a_tag_javascript() {
   let nodeListHref = document.querySelectorAll("[href]");
   for (let node of nodeListHref) {
@@ -188,7 +119,6 @@ async function XXXInlineTrigger(){
 
         for (var i = 0; i < waitCount; i++) {
           if (window.globalLock == 1) {
-            console.log("aaaaaaaaaaaaaaaaaaaaaaaa", i);
             await sleep(sleepTime);
           }
         }
@@ -196,20 +126,8 @@ async function XXXInlineTrigger(){
         console.log(error);
       }
     }
-
-    await sleep(sleepTime);
-
-    // // listener dom有没有执行完
-    // while (1) {
-    //   if (window.listenerFinish == 1) {
-    //     debugger
-    //     await sleep(2000);
-    //   } else {
-    //     break;
-    //   }
-    //   console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", Date.parse(new Date()));
-    // }
   }
+
   let nodeListSrc = document.querySelectorAll("[src]");
   for (let node of nodeListSrc) {
     let attrValue = node.getAttribute("src");
@@ -219,7 +137,6 @@ async function XXXInlineTrigger(){
 
         for (var i = 0; i < waitCount; i++) {
           if (window.globalLock == 1) {
-            console.log("bbbbbbbbbbbbbbbbbbbbbbbbb", i);
             await sleep(sleepTime);
           }
         }
@@ -227,5 +144,36 @@ async function XXXInlineTrigger(){
         console.log(error);
       }
     }
+  }
+
+  console.log(window.result);
+  var tmp;
+  for (; window.result.length > 0; tmp = window.result.pop()) {
+    try {
+      let attrValue = tmp.getAttribute("href");
+      if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
+        // await sleep(1000);
+        eval(attrValue.substring(11));
+      }
+      for (var i = 0; i < waitCount; i++) {
+        if (window.globalLock == 1) {
+          await sleep(sleepTime);
+        }
+      }
+    } catch (error) {}
+
+    try {
+      let attrValue = node2.getAttribute("src");
+      if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
+        // await sleep(1000);
+        eval(attrValue.substring(11));
+      }
+
+      for (var i = 0; i < waitCount; i++) {
+        if (window.globalLock == 1) {
+          await sleep(sleepTime);
+        }
+      }
+    } catch (error) {}
   }
 })();

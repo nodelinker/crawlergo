@@ -2,7 +2,7 @@ window.globalLock = 0;
 window.listenerFinish = 0;
 window.result = [];
 waitCount = 8;
-sleepTime = 1000;
+sleepTime = 1500;
 rootElement = document.querySelector("body");
 
 function sleep(ms) {
@@ -113,74 +113,74 @@ XMLHttpRequest.prototype.open = function () {
   origOpen.apply(this, arguments);
 };
 
-(async function click_all_a_tag_javascript() {
-  let nodeListHref = document.querySelectorAll("[href]");
-  for (let node of nodeListHref) {
-    let attrValue = node.getAttribute("href");
-    if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-      try {
-        eval(attrValue.substring(11));
+// (async function click_all_a_tag_javascript() {
+//   let nodeListHref = document.querySelectorAll("[href]");
+//   for (let node of nodeListHref) {
+//     let attrValue = node.getAttribute("href");
+//     if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
+//       try {
+//         eval(attrValue.substring(11));
 
-        for (var i = 0; i < waitCount; i++) {
-          if (window.globalLock == 1) {
-            await sleep(sleepTime);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
+//         for (var i = 0; i < waitCount; i++) {
+//           if (window.globalLock == 1) {
+//             await sleep(sleepTime);
+//           }
+//         }
+//       } catch (error) {
+//         console.log(error);
+//       }
+//     }
+//   }
 
-  let nodeListSrc = document.querySelectorAll("[src]");
-  for (let node of nodeListSrc) {
-    let attrValue = node.getAttribute("src");
-    if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-      try {
-        eval(attrValue.substring(11));
+//   let nodeListSrc = document.querySelectorAll("[src]");
+//   for (let node of nodeListSrc) {
+//     let attrValue = node.getAttribute("src");
+//     if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
+//       try {
+//         eval(attrValue.substring(11));
 
-        for (var i = 0; i < waitCount; i++) {
-          if (window.globalLock == 1) {
-            await sleep(sleepTime);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
+//         for (var i = 0; i < waitCount; i++) {
+//           if (window.globalLock == 1) {
+//             await sleep(sleepTime);
+//           }
+//         }
+//       } catch (error) {
+//         console.log(error);
+//       }
+//     }
+//   }
 
 
-  var tmp;
-  for (; window.result.length != 0; tmp = window.result.pop()) {
-    try {
-      let attrValue = tmp.getAttribute("href");
-      if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-        // await sleep(1000);
-        eval(attrValue.substring(11));
-      }
-      for (var i = 0; i < waitCount; i++) {
-        if (window.globalLock == 1) {
-          await sleep(sleepTime);
-        }
-      }
-    } catch (error) {}
+//   var tmp;
+//   for (; window.result.length != 0; tmp = window.result.pop()) {
+//     try {
+//       let attrValue = tmp.getAttribute("href");
+//       if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
+//         // await sleep(1000);
+//         eval(attrValue.substring(11));
+//       }
+//       for (var i = 0; i < waitCount; i++) {
+//         if (window.globalLock == 1) {
+//           await sleep(sleepTime);
+//         }
+//       }
+//     } catch (error) {}
 
-    try {
-      let attrValue = node2.getAttribute("src");
-      if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
-        // await sleep(1000);
-        eval(attrValue.substring(11));
-      }
+//     try {
+//       let attrValue = node2.getAttribute("src");
+//       if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
+//         // await sleep(1000);
+//         eval(attrValue.substring(11));
+//       }
 
-      for (var i = 0; i < waitCount; i++) {
-        if (window.globalLock == 1) {
-          await sleep(sleepTime);
-        }
-      }
-    } catch (error) {}
-  }
-})();
+//       for (var i = 0; i < waitCount; i++) {
+//         if (window.globalLock == 1) {
+//           await sleep(sleepTime);
+//         }
+//       }
+//     } catch (error) {}
+//   }
+// })();
 
 
 (async function trigger_all_inline_event(){
@@ -192,11 +192,11 @@ XMLHttpRequest.prototype.open = function () {
 			nodeList = nodeList.slice(0, 100);
 		}
 		for (let node of nodeList) {
-			await sleep(1000);
-			let evt = document.createEvent('CustomEvent');
+            let evt = document.createEvent('CustomEvent');
 			evt.initCustomEvent(event, false, true, null);
 			try {
-				node.dispatchEvent(evt);
+                node.dispatchEvent(evt);
+                await sleep(1000);
 			}
 			catch {}
 		}
@@ -233,6 +233,8 @@ XMLHttpRequest.prototype.open = function () {
         }
       } catch (error) {}
     }
+
+    var e = document.createElement('div');
 })()
 
 

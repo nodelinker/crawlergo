@@ -35,6 +35,7 @@ type Tab struct {
 	PageCharset      string
 	PageBindings     map[string]interface{}
 	NavDone          chan int
+	BlockWait        chan int
 	FoundRedirection bool
 	DocBodyNodeId    cdp.NodeID
 	config           TabConfig
@@ -73,6 +74,8 @@ func NewTab(browser *Browser, navigateReq model2.Request, config TabConfig) *Tab
 	var tab Tab
 	tab.ExtraHeaders = map[string]interface{}{}
 	var DOMContentLoadedRun = false
+
+	// 这也有个tab run timeout... (＠_＠;)
 	tab.Ctx, tab.Cancel = browser.NewTab(config.TabRunTimeout)
 	for key, value := range browser.ExtraHeaders {
 		navigateReq.Headers[key] = value
@@ -83,6 +86,7 @@ func NewTab(browser *Browser, navigateReq model2.Request, config TabConfig) *Tab
 	tab.NavigateReq = navigateReq
 	tab.config = config
 	tab.NavDone = make(chan int)
+	tab.BlockWait = make(chan int)
 	tab.DocBodyNodeId = 0
 
 	// 设置请求拦截监听
@@ -237,7 +241,12 @@ func (tab *Tab) Start() {
 	select {
 	case <-tab.NavDone:
 		logger.Logger.Debug("all navigation tasks done.")
-	case <-time.After(tab.config.DomContentLoadedTimeout + time.Second*10):
+
+	// 这里一个tab页等待10秒就退出
+	// 如果页面很大，量多页面里每个动态连接都需要点击并等待刷新，必然会超过10秒
+	// 所以比需要找一个办法比等10/s更有效的阻塞方式，当页面任务全部做完后才退出tab页
+	// 防止阻塞无法退出或无限循环的情况，设置一个大的等待时间 5-10 分钟
+	case <-time.After(tab.config.DomContentLoadedTimeout + time.Second*60*10):
 		logger.Logger.Warn("navigation tasks TIMEOUT.")
 	}
 
@@ -362,7 +371,26 @@ func (tab *Tab) HandleBindingCalled(event *runtime.EventBindingCalled) {
 	if bcPayload.Name == "Test" {
 		fmt.Println(bcPayload.Args)
 	}
+	if bcPayload.Name == "Trigger" {
+		fmt.Println(bcPayload.Args)
+	}
 	tab.Evaluate(fmt.Sprintf(js.DeliverResultJS, bcPayload.Name, bcPayload.Seq, "s"))
+}
+
+// 先去除timeout时间
+// JS执行完在body里面设置一个记号
+// chromedp监听记号，则直接退出
+func (tab *Tab) EvaluateWaitingForJsSig(expression string) {
+	ctx := tab.GetExecutor()
+	tCtx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+	_, exception, err := runtime.Evaluate(expression).Do(tCtx)
+	if exception != nil {
+		logger.Logger.Debug("tab Evaluate: ", exception.Text)
+	}
+	if err != nil {
+		logger.Logger.Debug("tab Evaluate: ", err)
+	}
 }
 
 /**
@@ -370,9 +398,14 @@ func (tab *Tab) HandleBindingCalled(event *runtime.EventBindingCalled) {
 */
 func (tab *Tab) Evaluate(expression string) {
 	ctx := tab.GetExecutor()
-	tCtx, cancel := context.WithTimeout(ctx, time.Second*5)
+
+	// 这一个执行js最多等2分钟，超时就cancel掉
+	tCtx, cancel := context.WithTimeout(ctx, time.Second*120)
 	defer cancel()
+
 	_, exception, err := runtime.Evaluate(expression).Do(tCtx)
+	chromedp.WaitVisible("")
+
 	if exception != nil {
 		logger.Logger.Debug("tab Evaluate: ", exception.Text)
 	}

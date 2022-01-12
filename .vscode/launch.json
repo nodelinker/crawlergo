@@ -15,6 +15,8 @@
                 "--event-trigger-interval", "2000ms", 
                 "--log-level", "Debug",
                 "--no-headless",
+                "--tab-run-timeout", "10m",
+                "--before-exit-delay", "10000ms",
                 "-c", "/home/user/chrome-linux/chrome", 
                 "http://47.253.44.210:9002/AJAX/"]
         }

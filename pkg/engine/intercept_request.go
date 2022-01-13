@@ -9,6 +9,7 @@ import (
 	"crawlergo/pkg/tools"
 	"crawlergo/pkg/tools/requests"
 	"encoding/base64"
+	"io"
 	"net/textproto"
 	"regexp"
 	"strconv"
@@ -26,6 +27,9 @@ func (tab *Tab) InterceptRequest(v *fetch.EventRequestPaused) {
 	defer tab.WG.Done()
 	ctx := tab.GetExecutor()
 	_req := v.Request
+
+	xxx := _req.URL
+	logger.Logger.Info("intercept ++++++++", xxx)
 	// 拦截到的URL格式一定正常 不处理错误
 	url, err := model2.GetUrl(_req.URL, *tab.NavigateReq.URL)
 	if err != nil {
@@ -248,9 +252,9 @@ func (tab *Tab) GetStatusCode(headerText string) int {
 	tp := textproto.NewReader(rspBuf)
 	line, err := tp.ReadLine()
 	if err != nil {
-		// if err == io.EOF {
-		// 	err = io.ErrUnexpectedEOF
-		// }
+		if err == io.EOF {
+			err = io.ErrUnexpectedEOF
+		}
 		return 0
 	}
 	parts := strings.Split(line, " ")

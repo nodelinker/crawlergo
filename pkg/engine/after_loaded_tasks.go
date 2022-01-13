@@ -26,10 +26,14 @@ err := EvaluateAsDevTools(snippet(submitJS, cashX(true), sel, nodes[0]), &res).D
 func (tab *Tab) AfterLoadedRun() {
 	defer tab.WG.Done()
 	logger.Logger.Debug("afterLoadedRun start")
+	tab.formSubmitWG.Add(2)
+	tab.loadedWG.Add(3)
+	tab.removeLis.Add(1)
 
-	// 不要并行，要单行
+	go tab.formSubmit()
+	tab.formSubmitWG.Wait()
+	logger.Logger.Debug("formSubmit end")
 
-	// tab.loadedWG.Add(3)
 	// if tab.config.EventTriggerMode == config.EventTriggerAsync {
 	// 	go tab.triggerJavascriptProtocol()
 	// 	go tab.triggerInlineEvents()
@@ -43,28 +47,24 @@ func (tab *Tab) AfterLoadedRun() {
 	// 	tab.triggerJavascriptProtocol()
 	// }
 
-	tab.loadedWG.Add(1)
-
+	logger.Logger.Info("AfterLoadedRun Trigger Begin", time.Now())
 	tab.triggerJavascriptProtocol()
+	logger.Logger.Info("AfterLoadedRun triggerJavascriptProtocol End", time.Now())
+	time.Sleep(tab.config.EventTriggerInterval)
+
 	tab.triggerInlineEvents()
+	logger.Logger.Info("AfterLoadedRun triggerInlineEvents End", time.Now())
+	time.Sleep(tab.config.EventTriggerInterval)
+
 	tab.triggerDom2Events()
+	logger.Logger.Info("AfterLoadedRun triggerDom2Events End", time.Now())
+	time.Sleep(tab.config.EventTriggerInterval)
 
-	// 意思一下，黄条太难看
-	tab.loadedWG.Done()
-	tab.loadedWG.Wait()
-
-	tab.formSubmitWG.Add(2)
-	// 经过测试，如果form submit函数在trigger js之前执行会出现各种奇怪的现象，例如部分事件无法触发，页面不加载等问题
-	// 移到trigger js之后以后再执行
-	go tab.formSubmit()
-	tab.formSubmitWG.Wait()
-
-	logger.Logger.Debug("formSubmit end")
+	logger.Logger.Info("AfterLoadedRun Trigger End", time.Now())
 
 	// 事件触发之后 需要等待一点时间让浏览器成功发出ajax请求 更新DOM
 	time.Sleep(tab.config.BeforeExitDelay)
 
-	tab.removeLis.Add(1)
 	go tab.RemoveDOMListener()
 	tab.removeLis.Wait()
 	logger.Logger.Debug("afterLoadedRun end")
@@ -81,11 +81,7 @@ func (tab *Tab) formSubmit() {
 	tab.setFormToFrame()
 
 	// 接下来尝试三种方式提交表单
-
-	// xpath 查找 form submit button
 	go tab.clickSubmit()
-
-	// 暴力点击，所有button都点一遍
 	go tab.clickAllButton()
 }
 
@@ -182,8 +178,6 @@ func (tab *Tab) clickAllButton() {
 	}
 }
 
-
-
 /**
 触发内联事件
 */
@@ -213,40 +207,7 @@ func (tab *Tab) triggerJavascriptProtocol() {
 	tab.Evaluate(fmt.Sprintf(js.TriggerJavascriptProtocol, tab.config.EventTriggerInterval.Seconds()*1000,
 		tab.config.EventTriggerInterval.Seconds()*1000))
 	logger.Logger.Debug("clickATagJavascriptProtocol end")
-
-
 }
-
-// /**
-// 触发内联事件
-// */
-// func (tab *Tab) triggerInlineEvents() {
-// 	// defer tab.loadedWG.Done()
-// 	logger.Logger.Debug("triggerInlineEvents start")
-// 	tab.Evaluate(fmt.Sprintf(js.TriggerInlineEventJS, tab.config.EventTriggerInterval.Seconds()*1000))
-// 	logger.Logger.Debug("triggerInlineEvents end")
-// }
-
-// /**
-// 触发DOM2级事件
-// */
-// func (tab *Tab) triggerDom2Events() {
-// 	// defer tab.loadedWG.Done()
-// 	logger.Logger.Debug("triggerDom2Events start")
-// 	tab.Evaluate(fmt.Sprintf(js.TriggerDom2EventJS, tab.config.EventTriggerInterval.Seconds()*1000))
-// 	logger.Logger.Debug("triggerDom2Events end")
-// }
-
-// /**
-// a标签的href值为伪协议，
-// */
-// func (tab *Tab) triggerJavascriptProtocol() {
-// 	// defer tab.loadedWG.Done()
-// 	logger.Logger.Debug("clickATagJavascriptProtocol start")
-// 	tab.Evaluate(fmt.Sprintf(js.TriggerJavascriptProtocol, tab.config.EventTriggerInterval.Seconds()*1000,
-// 		tab.config.EventTriggerInterval.Seconds()*1000))
-// 	logger.Logger.Debug("clickATagJavascriptProtocol end")
-// }
 
 /**
 移除DOM节点变化监听

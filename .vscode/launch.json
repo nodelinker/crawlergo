@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Launch Package",
             "type": "go",
@@ -17,8 +18,9 @@
                 "--no-headless",
                 "--tab-run-timeout", "10m",
                 "--before-exit-delay", "10000ms",
-                "-c", "/home/user/chrome-linux/chrome", 
-                "http://47.253.44.210:9002/AJAX/"]
+                "-c", "/home/user/chrome-linux/chrome",
+                "--request-proxy", "socks5://192.168.207.1:10808", 
+                "http://testphp.vulnweb.com/AJAX/index.php"]
         }
     ]
 }

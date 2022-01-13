@@ -250,7 +250,7 @@ func (t *CrawlerTask) addTask2Pool(req *model.Request) {
 	t.taskWG.Add(1)
 	task := t.generateTabTask(req)
 	go func() {
-		err := t.Pool.Submit(task.TaskXcXXX)
+		err := t.Pool.Submit(task.Task)
 		if err != nil {
 			t.taskWG.Done()
 			logger.Logger.Error("addTask2Pool ", err)
@@ -261,7 +261,7 @@ func (t *CrawlerTask) addTask2Pool(req *model.Request) {
 /**
 单个运行的tab标签任务，实现了workpool的接口
 */
-func (t *tabTask) TaskXcXXX() {
+func (t *tabTask) Task() {
 	defer t.crawlerTask.taskWG.Done()
 	tab := engine2.NewTab(t.browser, *t.req, engine2.TabConfig{
 		TabRunTimeout:           t.crawlerTask.Config.TabRunTimeout,
@@ -274,8 +274,6 @@ func (t *tabTask) TaskXcXXX() {
 		CustomFormValues:        t.crawlerTask.Config.CustomFormValues,
 		CustomFormKeywordValues: t.crawlerTask.Config.CustomFormKeywordValues,
 	})
-
-	// 不能让tab随便退出
 	tab.Start()
 
 	// 收集结果

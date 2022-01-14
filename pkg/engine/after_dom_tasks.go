@@ -5,11 +5,12 @@ import (
 	"crawlergo/pkg/config"
 	"crawlergo/pkg/js"
 	"crawlergo/pkg/logger"
-	"github.com/chromedp/cdproto/cdp"
-	"github.com/chromedp/chromedp"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/chromedp/cdproto/cdp"
+	"github.com/chromedp/chromedp"
 )
 
 /**
@@ -26,11 +27,12 @@ func (tab *Tab) AfterDOMRun() {
 		return
 	}
 
-	tab.domWG.Add(2)
-	go tab.fillForm()
-	go tab.setObserverJS()
-	tab.domWG.Wait()
-	logger.Logger.Debug("afterDOMRun end")
+	// tab.domWG.Add(2)
+	// go tab.fillForm()
+	// go tab.setObserverJS()
+	// tab.domWG.Wait()
+	// logger.Logger.Debug("afterDOMRun end")
+
 	tab.WG.Add(1)
 	go tab.AfterLoadedRun()
 }

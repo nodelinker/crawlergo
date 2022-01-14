@@ -26,14 +26,14 @@ err := EvaluateAsDevTools(snippet(submitJS, cashX(true), sel, nodes[0]), &res).D
 func (tab *Tab) AfterLoadedRun() {
 	defer tab.WG.Done()
 	logger.Logger.Debug("afterLoadedRun start")
-	tab.formSubmitWG.Add(2)
-	tab.loadedWG.Add(3)
 	tab.removeLis.Add(1)
 
-	go tab.formSubmit()
-	tab.formSubmitWG.Wait()
-	logger.Logger.Debug("formSubmit end")
+	// tab.formSubmitWG.Add(2)
+	// go tab.formSubmit()
+	// tab.formSubmitWG.Wait()
+	// logger.Logger.Debug("formSubmit end")
 
+	// tab.loadedWG.Add(3)
 	// if tab.config.EventTriggerMode == config.EventTriggerAsync {
 	// 	go tab.triggerJavascriptProtocol()
 	// 	go tab.triggerInlineEvents()
@@ -52,22 +52,22 @@ func (tab *Tab) AfterLoadedRun() {
 	logger.Logger.Info("AfterLoadedRun triggerJavascriptProtocol End", time.Now())
 	time.Sleep(tab.config.EventTriggerInterval)
 
-	tab.triggerInlineEvents()
-	logger.Logger.Info("AfterLoadedRun triggerInlineEvents End", time.Now())
-	time.Sleep(tab.config.EventTriggerInterval)
+	// tab.triggerInlineEvents()
+	// logger.Logger.Info("AfterLoadedRun triggerInlineEvents End", time.Now())
+	// time.Sleep(tab.config.EventTriggerInterval)
 
-	tab.triggerDom2Events()
-	logger.Logger.Info("AfterLoadedRun triggerDom2Events End", time.Now())
-	time.Sleep(tab.config.EventTriggerInterval)
+	// tab.triggerDom2Events()
+	// logger.Logger.Info("AfterLoadedRun triggerDom2Events End", time.Now())
+	// time.Sleep(tab.config.EventTriggerInterval)
 
 	logger.Logger.Info("AfterLoadedRun Trigger End", time.Now())
 
 	// 事件触发之后 需要等待一点时间让浏览器成功发出ajax请求 更新DOM
-	time.Sleep(tab.config.BeforeExitDelay)
+	// time.Sleep(tab.config.BeforeExitDelay)
 
-	go tab.RemoveDOMListener()
-	tab.removeLis.Wait()
-	logger.Logger.Debug("afterLoadedRun end")
+	// go tab.RemoveDOMListener()
+	// tab.removeLis.Wait()
+	// logger.Logger.Debug("afterLoadedRun end")
 }
 
 /**
@@ -184,7 +184,8 @@ func (tab *Tab) clickAllButton() {
 func (tab *Tab) triggerInlineEvents() {
 	// defer tab.loadedWG.Done()
 	logger.Logger.Debug("triggerInlineEvents start")
-	tab.Evaluate(fmt.Sprintf(js.TriggerInlineEventJS, tab.config.EventTriggerInterval.Seconds()*1000))
+	// tab.Evaluate(fmt.Sprintf(js.TriggerInlineEventJS, tab.config.EventTriggerInterval.Seconds()*1000))
+	tab.Evaluate(js.TriggerJavascriptProtocol)
 	logger.Logger.Debug("triggerInlineEvents end")
 }
 
@@ -204,8 +205,10 @@ a标签的href值为伪协议，
 func (tab *Tab) triggerJavascriptProtocol() {
 	// defer tab.loadedWG.Done()
 	logger.Logger.Debug("clickATagJavascriptProtocol start")
-	tab.Evaluate(fmt.Sprintf(js.TriggerJavascriptProtocol, tab.config.EventTriggerInterval.Seconds()*1000,
-		tab.config.EventTriggerInterval.Seconds()*1000))
+	// tab.Evaluate(fmt.Sprintf(js.TriggerJavascriptProtocol, tab.config.EventTriggerInterval.Seconds()*1000,
+	// 	tab.config.EventTriggerInterval.Seconds()*1000))
+
+	tab.Evaluate(js.TriggerJavascriptProtocol)
 	logger.Logger.Debug("clickATagJavascriptProtocol end")
 }
 

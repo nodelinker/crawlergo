@@ -9,6 +9,7 @@ import (
 	"crawlergo/pkg/tools"
 	"crawlergo/pkg/tools/requests"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"net/textproto"
 	"regexp"
@@ -28,8 +29,8 @@ func (tab *Tab) InterceptRequest(v *fetch.EventRequestPaused) {
 	ctx := tab.GetExecutor()
 	_req := v.Request
 
-	xxx := _req.URL
-	logger.Logger.Info("intercept ++++++++", xxx)
+	fmt.Println("intercept ===========> ", _req.URL)
+
 	// 拦截到的URL格式一定正常 不处理错误
 	url, err := model2.GetUrl(_req.URL, *tab.NavigateReq.URL)
 	if err != nil {

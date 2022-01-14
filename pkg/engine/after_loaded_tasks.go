@@ -24,7 +24,7 @@ err := EvaluateAsDevTools(snippet(submitJS, cashX(true), sel, nodes[0]), &res).D
 同时等待 afterDOMRun 之后执行
 */
 func (tab *Tab) AfterLoadedRun() {
-	defer tab.WG.Done()
+	// defer tab.WG.Done()
 	logger.Logger.Debug("afterLoadedRun start")
 	tab.removeLis.Add(1)
 
@@ -47,14 +47,14 @@ func (tab *Tab) AfterLoadedRun() {
 	// 	tab.triggerJavascriptProtocol()
 	// }
 
+	// js trigger event must sequential execute
 	logger.Logger.Info("AfterLoadedRun Trigger Begin", time.Now())
+
 	tab.triggerJavascriptProtocol()
 	logger.Logger.Info("AfterLoadedRun triggerJavascriptProtocol End", time.Now())
-	time.Sleep(tab.config.EventTriggerInterval)
 
-	// tab.triggerInlineEvents()
-	// logger.Logger.Info("AfterLoadedRun triggerInlineEvents End", time.Now())
-	// time.Sleep(tab.config.EventTriggerInterval)
+	tab.triggerInlineEvents()
+	logger.Logger.Info("AfterLoadedRun triggerInlineEvents End", time.Now())
 
 	// tab.triggerDom2Events()
 	// logger.Logger.Info("AfterLoadedRun triggerDom2Events End", time.Now())
@@ -68,6 +68,8 @@ func (tab *Tab) AfterLoadedRun() {
 	// go tab.RemoveDOMListener()
 	// tab.removeLis.Wait()
 	// logger.Logger.Debug("afterLoadedRun end")
+
+	tab.WG.Done()
 }
 
 /**
@@ -185,7 +187,9 @@ func (tab *Tab) triggerInlineEvents() {
 	// defer tab.loadedWG.Done()
 	logger.Logger.Debug("triggerInlineEvents start")
 	// tab.Evaluate(fmt.Sprintf(js.TriggerInlineEventJS, tab.config.EventTriggerInterval.Seconds()*1000))
-	tab.Evaluate(js.TriggerJavascriptProtocol)
+	tab.Evaluate(js.TriggerInlineEventJS)
+	time.Sleep(time.Duration(time.Second * 10))
+
 	logger.Logger.Debug("triggerInlineEvents end")
 }
 
@@ -209,6 +213,11 @@ func (tab *Tab) triggerJavascriptProtocol() {
 	// 	tab.config.EventTriggerInterval.Seconds()*1000))
 
 	tab.Evaluate(js.TriggerJavascriptProtocol)
+
+	// sleep for now
+	// but we need find out the way block this method waiting js run finish
+	time.Sleep(time.Duration(time.Second * 10))
+
 	logger.Logger.Debug("clickATagJavascriptProtocol end")
 }
 

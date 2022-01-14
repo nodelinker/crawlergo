@@ -254,6 +254,8 @@ func (tab *Tab) Start() {
 		tab.EncodeAllURLWithCharset()
 	}
 
+	fmt.Println("it's done!")
+
 	//fmt.Println(tab.NavigateReq.URL.String(), len(tab.ResultList))
 	//for _, v := range tab.ResultList {
 	//	v.SimplePrint()
@@ -362,7 +364,7 @@ func (tab *Tab) HandleBindingCalled(event *runtime.EventBindingCalled) {
 */
 func (tab *Tab) Evaluate(expression string) {
 	ctx := tab.GetExecutor()
-	tCtx, cancel := context.WithTimeout(ctx, time.Second*5)
+	tCtx, cancel := context.WithTimeout(ctx, time.Second*60)
 	defer cancel()
 	_, exception, err := runtime.Evaluate(expression).Do(tCtx)
 	if exception != nil {

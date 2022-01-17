@@ -80,6 +80,8 @@ func (bro *Browser) NewTab(timeout time.Duration) (*context.Context, context.Can
 	ctx, cancel := chromedp.NewContext(*bro.Ctx)
 	//defer cancel()
 	tCtx, _ := context.WithTimeout(ctx, timeout)
+	// defer cancel()
+
 	bro.tabs = append(bro.tabs, &tCtx)
 	bro.tabCancels = append(bro.tabCancels, cancel)
 	//defer cancel2()

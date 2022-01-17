@@ -383,7 +383,7 @@ const NewFrameTemplate = `
 `
 
 const TriggerInlineEventJS = `
-(async function click_all_a_tag_javascript() {
+(async function trigger_inline_event_javascript() {
     waitCount = 8;
     window.result = [];
     window.globalLock = 0;
@@ -532,15 +532,23 @@ const TriggerInlineEventJS = `
         }
       } catch (error) {}
     }
-
+    observer.disconnect();
+	
+	var node = document.createElement("div");
+	node.id = "%s";
+	node.setAttribute("name", "trigger_inline_event");
+	node.setAttribute("flag", 1);
   
-    observer.disconnect()
+	rootElement.appendChild(node);
   })();
   
 `
 
 const TriggerDom2EventJS = `
 (async function trigger_all_dom2_custom_event() {
+
+
+
 	function transmit_child(node, event, loop) {
 		let _loop = loop + 1
 		if (_loop > 4) {
@@ -736,7 +744,14 @@ const TriggerJavascriptProtocol = `
 	  } catch (error) {}
 	}
   
-	observer.disconnect()
+	observer.disconnect();
+
+	var node = document.createElement("div");
+	node.id = "%s";
+	node.setAttribute("name", "click_all_a_tag_javascript");
+	node.setAttribute("flag", 1);
+  
+	rootElement.appendChild(node);
   })();  
 `
 

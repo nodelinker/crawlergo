@@ -266,7 +266,7 @@ func (tab *Tab) Start() {
 func RunWithTimeOut(ctx *context.Context, timeout time.Duration, tasks chromedp.Tasks) chromedp.ActionFunc {
 	return func(ctx context.Context) error {
 		timeoutContext, _ := context.WithTimeout(ctx, timeout)
-		//defer cancel()
+		// defer cancel()
 		return tasks.Do(timeoutContext)
 	}
 }

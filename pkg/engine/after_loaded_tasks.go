@@ -10,6 +10,7 @@ import (
 
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
+	"github.com/google/uuid"
 )
 
 /**
@@ -184,13 +185,30 @@ func (tab *Tab) clickAllButton() {
 触发内联事件
 */
 func (tab *Tab) triggerInlineEvents() {
-	// defer tab.loadedWG.Done()
-	logger.Logger.Debug("triggerInlineEvents start")
-	// tab.Evaluate(fmt.Sprintf(js.TriggerInlineEventJS, tab.config.EventTriggerInterval.Seconds()*1000))
-	tab.Evaluate(js.TriggerInlineEventJS)
-	time.Sleep(time.Duration(time.Second * 10))
 
-	logger.Logger.Debug("triggerInlineEvents end")
+	timeoutContext, cancel := context.WithTimeout(*tab.Ctx, 5*time.Second)
+	defer cancel()
+
+	if err := chromedp.Run(timeoutContext, chromedp.WaitVisible(`body`)); err == nil {
+
+		// generate task id
+		taskId := uuid.New().String()
+
+		// defer tab.loadedWG.Done()
+		logger.Logger.Debug("triggerInlineEvents start")
+		// tab.Evaluate(fmt.Sprintf(js.TriggerInlineEventJS, tab.config.EventTriggerInterval.Seconds()*1000))
+
+		tab.Evaluate(fmt.Sprintf(js.TriggerInlineEventJS, taskId))
+
+		// tab.Evaluate(js.TriggerInlineEventJS)
+
+		chromedp.Run(*tab.Ctx, chromedp.WaitVisible(fmt.Sprintf(`//div[@id='%s']`, taskId)))
+		// time.Sleep(time.Duration(time.Second * 10))
+
+		logger.Logger.Debug("triggerInlineEvents end")
+
+	}
+
 }
 
 /**
@@ -207,18 +225,31 @@ func (tab *Tab) triggerDom2Events() {
 a标签的href值为伪协议，
 */
 func (tab *Tab) triggerJavascriptProtocol() {
-	// defer tab.loadedWG.Done()
-	logger.Logger.Debug("clickATagJavascriptProtocol start")
-	// tab.Evaluate(fmt.Sprintf(js.TriggerJavascriptProtocol, tab.config.EventTriggerInterval.Seconds()*1000,
-	// 	tab.config.EventTriggerInterval.Seconds()*1000))
 
-	tab.Evaluate(js.TriggerJavascriptProtocol)
+	timeoutContext, cancel := context.WithTimeout(*tab.Ctx, 5*time.Second)
+	defer cancel()
 
-	// sleep for now
-	// but we need find out the way block this method waiting js run finish
-	time.Sleep(time.Duration(time.Second * 10))
+	if err := chromedp.Run(timeoutContext, chromedp.WaitVisible(`body`)); err == nil {
+		// generate task id
+		taskId := uuid.New().String()
 
-	logger.Logger.Debug("clickATagJavascriptProtocol end")
+		// defer tab.loadedWG.Done()
+		logger.Logger.Debug("clickATagJavascriptProtocol start")
+
+		// tab.Evaluate(fmt.Sprintf(js.TriggerJavascriptProtocol, tab.config.EventTriggerInterval.Seconds()*1000,
+		// 	tab.config.EventTriggerInterval.Seconds()*1000))
+
+		tab.Evaluate(fmt.Sprintf(js.TriggerJavascriptProtocol, taskId))
+
+		chromedp.Run(*tab.Ctx, chromedp.WaitVisible(fmt.Sprintf("//div[@id='%s']", taskId)))
+
+		// sleep for now
+		// but we need find out the way block this method waiting js run finish
+		// time.Sleep(time.Duration(time.Second * 10))
+
+		logger.Logger.Debug("clickATagJavascriptProtocol end")
+	}
+
 }
 
 /**

@@ -501,10 +501,10 @@ const TriggerInlineEventJS = `
 		}
 	}
 
-    var tmp;
-    for (; window.result.length != 0; tmp = window.result.pop()) {
+    while(true){
+	  var tmp = window.result.pop();
 
-        console.log(window.result.length, window.result)
+	  console.log(window.result.length, window.result)
       try {
         let attrValue = tmp.getAttribute("href");
         if (attrValue.toLocaleLowerCase().startsWith("javascript:")) {
@@ -531,6 +531,10 @@ const TriggerInlineEventJS = `
           }
         }
       } catch (error) {}
+
+	  if (window.result.length == 0){
+		  break;
+	  }
     }
     observer.disconnect();
 	
@@ -713,8 +717,8 @@ const TriggerJavascriptProtocol = `
 	  }
 	}
   
-	var tmp;
-	for (; window.result.length != 0; tmp = window.result.pop()) {
+	while(true){
+	  var tmp = window.result.pop();
 	  console.log(window.result.length, window.result);
 	  try {
 		let attrValue = tmp.getAttribute("href");
@@ -742,6 +746,10 @@ const TriggerJavascriptProtocol = `
 		  }
 		}
 	  } catch (error) {}
+
+	  if (window.result.length == 0){
+		  break;
+	  }
 	}
   
 	observer.disconnect();

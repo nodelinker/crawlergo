@@ -29,11 +29,6 @@ func (tab *Tab) AfterLoadedRun() {
 	logger.Logger.Debug("afterLoadedRun start")
 	tab.removeLis.Add(1)
 
-	// tab.formSubmitWG.Add(2)
-	// go tab.formSubmit()
-	// tab.formSubmitWG.Wait()
-	// logger.Logger.Debug("formSubmit end")
-
 	// tab.loadedWG.Add(3)
 	// if tab.config.EventTriggerMode == config.EventTriggerAsync {
 	// 	go tab.triggerJavascriptProtocol()
@@ -69,6 +64,14 @@ func (tab *Tab) AfterLoadedRun() {
 	// go tab.RemoveDOMListener()
 	// tab.removeLis.Wait()
 	// logger.Logger.Debug("afterLoadedRun end")
+
+	// if form submit method executed before evalute ajax inline trigger
+	// script reulst that will be messed up
+	tab.formSubmitWG.Add(2)
+	go tab.formSubmit()
+	tab.formSubmitWG.Wait()
+
+	logger.Logger.Debug("formSubmit end")
 
 	tab.WG.Done()
 }

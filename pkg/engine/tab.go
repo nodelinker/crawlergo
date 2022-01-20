@@ -308,7 +308,11 @@ func (tab *Tab) AddResultUrl(method string, _url string, source string) {
 	req.Source = source
 
 	tab.lock.Lock()
-	tab.ResultList = append(tab.ResultList, &req)
+
+	// prevent infinite crawl loop
+	if tab.NavigateReq.URL.URL.Path != req.URL.URL.Path {
+		tab.ResultList = append(tab.ResultList, &req)
+	}
 	tab.lock.Unlock()
 }
 
@@ -320,7 +324,11 @@ func (tab *Tab) AddResultRequest(req model2.Request) {
 		req.Headers[key] = value
 	}
 	tab.lock.Lock()
-	tab.ResultList = append(tab.ResultList, &req)
+
+	// prevent infinite crawl loop
+	if tab.NavigateReq.URL.URL.Path != req.URL.URL.Path {
+		tab.ResultList = append(tab.ResultList, &req)
+	}
 	tab.lock.Unlock()
 }
 

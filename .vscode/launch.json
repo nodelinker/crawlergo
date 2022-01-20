@@ -20,7 +20,8 @@
                 "--before-exit-delay", "10000ms",
                 "-c", "/home/user/chrome-linux/chrome",
                 "--request-proxy", "socks5://192.168.207.1:10808", 
-                "http://testphp.vulnweb.com/AJAX/index.php"]
+                "http://testphp.vulnweb.com/AJAX/index.php"
+            ]
         }
     ]
 }

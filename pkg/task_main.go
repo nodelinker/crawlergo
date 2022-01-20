@@ -279,6 +279,11 @@ func (t *tabTask) Task() {
 	// 收集结果
 	t.crawlerTask.Result.resultLock.Lock()
 	t.crawlerTask.Result.AllReqList = append(t.crawlerTask.Result.AllReqList, tab.ResultList...)
+
+	// for i, req := range t.crawlerTask.Result.AllReqList {
+	// 	fmt.Println("+++++++++++++++++", i, req.URL.URL)
+	// }
+
 	t.crawlerTask.Result.resultLock.Unlock()
 
 	for _, req := range tab.ResultList {
